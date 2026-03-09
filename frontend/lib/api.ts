@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const envApiBase = process.env.NEXT_PUBLIC_API_URL?.trim();
+const API_URL = (envApiBase && envApiBase !== 'undefined' ? envApiBase : 'http://localhost:8000').replace(/\/$/, '');
 
 console.log('API Base URL:', API_URL);
 
