@@ -9,6 +9,7 @@ import base64
 from pathlib import Path
 from typing import Optional, List
 from dotenv import load_dotenv
+import logging
 
 # Import new services
 from ai_service import AIService
@@ -69,6 +70,8 @@ def get_allowed_origins() -> List[str]:
 
 
 ALLOWED_ORIGINS = get_allowed_origins()
+
+logger = logging.getLogger("resumeforge.auth")
 
 # Pydantic Models
 class UserCreate(BaseModel):
@@ -186,29 +189,48 @@ async def health_check():
 
 @app.post("/api/auth/signup", response_model=TokenResponse)
 async def signup(user_data: UserCreate):
-    if get_user_by_email(user_data.email):
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    user_id = str(uuid.uuid4())
-    users = get_users_db()
-    users[user_id] = {
-        "id": user_id,
-        "email": user_data.email,
-        "hashed_password": hash_password(user_data.password),
-        "created_at": datetime.utcnow().isoformat(),
-        "is_active": True,
-        "is_premium": False,
-    }
-    save_users_db(users)
-    
-    user = users[user_id]
-    access_token = create_token(user["id"], user["email"])
-    
-    return TokenResponse(
-        access_token=access_token,
-        token_type="bearer",
-        user=UserResponse(id=user["id"], email=user["email"], created_at=user["created_at"], is_active=user["is_active"])
-    )
+    logger.info("signup request received", extra={"email": user_data.email})
+    try:
+        logger.info("signup validation passed", extra={"email": user_data.email})
+
+        logger.info("signup user existence check", extra={"email": user_data.email})
+        if get_user_by_email(user_data.email):
+            logger.info("signup blocked: email already registered", extra={"email": user_data.email})
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        user_id = str(uuid.uuid4())
+        users = get_users_db()
+
+        logger.info("signup password hashing started", extra={"email": user_data.email})
+        hashed_password = hash_password(user_data.password)
+        logger.info("signup password hashing finished", extra={"email": user_data.email})
+
+        users[user_id] = {
+            "id": user_id,
+            "email": user_data.email,
+            "hashed_password": hashed_password,
+            "created_at": datetime.utcnow().isoformat(),
+            "is_active": True,
+            "is_premium": False,
+        }
+
+        save_users_db(users)
+        logger.info("signup user saved", extra={"email": user_data.email, "user_id": user_id})
+
+        user = users[user_id]
+        access_token = create_token(user["id"], user["email"])
+
+        logger.info("signup response returned", extra={"email": user_data.email, "user_id": user_id})
+        return TokenResponse(
+            access_token=access_token,
+            token_type="bearer",
+            user=UserResponse(id=user["id"], email=user["email"], created_at=user["created_at"], is_active=user["is_active"])
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("signup failed unexpectedly", extra={"email": user_data.email})
+        raise HTTPException(status_code=500, detail="Internal server error during signup") from exc
 
 @app.post("/api/auth/login", response_model=TokenResponse)
 async def login(credentials: UserLogin):

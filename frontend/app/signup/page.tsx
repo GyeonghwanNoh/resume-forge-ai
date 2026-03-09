@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { authService } from '@/lib/auth';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
@@ -13,6 +14,22 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const getSignupErrorMessage = (err: unknown): string => {
+    if (!axios.isAxiosError(err)) {
+      return 'Signup failed. Please try again.';
+    }
+
+    if (err.code === 'ECONNABORTED') {
+      return 'Server is waking up. Please try again in a few seconds.';
+    }
+
+    if (!err.response) {
+      return 'Network error. Please check your connection and try again.';
+    }
+
+    return err.response.data?.detail || `Server error (${err.response.status}). Please try again.`;
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +54,9 @@ export default function SignupPage() {
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
       router.push('/dashboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Signup error:', err);
-      console.error('Error response:', err.response);
-      const errorMessage = err.response?.data?.detail || err.message || 'Signup failed. Please try again.';
-      setError(errorMessage);
+      setError(getSignupErrorMessage(err));
     } finally {
       setLoading(false);
     }
