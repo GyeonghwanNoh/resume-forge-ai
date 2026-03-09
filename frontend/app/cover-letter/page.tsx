@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { resumeService } from '@/lib/auth';
 import { FileText, Copy, ArrowRight, Wand2 } from 'lucide-react';
@@ -8,7 +8,7 @@ import AppTopbar from '@/components/AppTopbar';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 
-export default function CoverLetterPage() {
+function CoverLetterPageContent() {
   const searchParams = useSearchParams();
   const [jobDescription, setJobDescription] = useState('');
   const [resumeId, setResumeId] = useState(searchParams.get('resumeId') ?? '');
@@ -109,5 +109,21 @@ export default function CoverLetterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CoverLetterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+            <p className="text-base font-medium text-slate-700">Loading editor...</p>
+          </div>
+        </div>
+      }
+    >
+      <CoverLetterPageContent />
+    </Suspense>
   );
 }
