@@ -23,15 +23,25 @@ export default function SignupPage() {
       return;
     }
 
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      console.log('Attempting signup with email:', email);
       const response = await authService.signup(email, password);
+      console.log('Signup successful:', response);
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Signup failed');
+      console.error('Signup error:', err);
+      console.error('Error response:', err.response);
+      const errorMessage = err.response?.data?.detail || err.message || 'Signup failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
