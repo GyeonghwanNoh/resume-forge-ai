@@ -57,16 +57,40 @@ initialize_storage()
 
 
 def get_allowed_origins() -> List[str]:
-    csv_origins = os.getenv("CORS_ORIGINS", "")
-    origins = [o.strip().rstrip("/") for o in csv_origins.split(",") if o.strip()]
+    raw_frontend_url = os.getenv("FRONTEND_URL", "").strip().strip('"').strip("'")
+    raw_cors_origins = os.getenv("CORS_ORIGINS", "").strip()
+
+    env_origins: List[str] = []
+
+    if raw_cors_origins:
+        normalized = raw_cors_origins.strip()
+
+        # Support JSON-like list format, e.g. ["https://a.com", "http://localhost:3000"]
+        if normalized.startswith("[") and normalized.endswith("]"):
+            try:
+                parsed = json.loads(normalized)
+                if isinstance(parsed, list):
+                    env_origins.extend(str(o).strip() for o in parsed)
+            except Exception:
+                # Fallback to CSV parsing below
+                pass
+
+        if not env_origins:
+            # Support comma-separated format
+            env_origins.extend(part.strip() for part in raw_cors_origins.split(",") if part.strip())
+
     defaults = [
-        FRONTEND_URL,
+        raw_frontend_url,
+        "https://resume-forge-ai-dusky.vercel.app",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
-    merged = origins + defaults
+
+    merged = env_origins + defaults
+    cleaned = [o.strip().strip('"').strip("'").rstrip("/") for o in merged if o and o.strip()]
+
     # preserve order, remove duplicates
-    return list(dict.fromkeys(merged))
+    return list(dict.fromkeys(cleaned))
 
 
 ALLOWED_ORIGINS = get_allowed_origins()
