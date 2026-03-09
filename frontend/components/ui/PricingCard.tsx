@@ -7,8 +7,10 @@ interface PricingCardProps {
   subtitle: string;
   price: string;
   ctaLabel: string;
-  ctaHref: string;
   features: string[];
+  ctaHref?: string;
+  onClick?: () => void;
+  disabled?: boolean;
   highlighted?: boolean;
   badge?: string;
 }
@@ -18,8 +20,10 @@ export default function PricingCard({
   subtitle,
   price,
   ctaLabel,
-  ctaHref,
   features,
+  ctaHref,
+  onClick,
+  disabled = false,
   highlighted = false,
   badge,
 }: PricingCardProps) {
@@ -53,14 +57,30 @@ export default function PricingCard({
         ))}
       </ul>
 
-      <Link
-        href={ctaHref}
-        className={`mt-8 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
-          highlighted ? 'bg-white text-indigo-700 hover:bg-indigo-50' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-        }`}
-      >
-        {ctaLabel}
-      </Link>
+      {onClick ? (
+        <button
+          onClick={onClick}
+          disabled={disabled}
+          className={`mt-8 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            disabled
+              ? `${highlighted ? 'bg-white/50 text-indigo-700/50' : 'bg-slate-200 text-slate-400'}`
+              : highlighted
+                ? 'bg-white text-indigo-700 hover:bg-indigo-50'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}
+        >
+          {ctaLabel}
+        </button>
+      ) : (
+        <Link
+          href={ctaHref || '#'}
+          className={`mt-8 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            highlighted ? 'bg-white text-indigo-700 hover:bg-indigo-50' : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}
+        >
+          {ctaLabel}
+        </Link>
+      )}
     </article>
   );
 }

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime
 
 
@@ -18,6 +18,8 @@ class UserResponse(BaseModel):
     email: str
     created_at: str
     is_active: bool
+    plan: Literal["free", "pro"] = "free"
+    billing_status: Optional[str] = None
 
 
 class TokenResponse(BaseModel):

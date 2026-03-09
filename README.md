@@ -31,17 +31,35 @@ ResumeForge AI is a production-ready MVP built for solo deployment. It helps use
 
 ## 🚀 Fastest Deployment Path (Recommended)
 
-If this is your first deployment, start here:
+Choose your guide based on what you need:
 
-- [DEPLOYMENT.md](DEPLOYMENT.md)
+### For Deployment Only
+Start here: [DEPLOYMENT.md](DEPLOYMENT.md)
+- Beginner-friendly, click-by-click instructions
+- Vercel + Render setup
+- 10 minutes to production
 
-This guide is intentionally beginner-friendly and includes:
+### For Production Deployment + Payment Integration
+Start here: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
+- Detailed verification steps
+- Production environment variables
+- Data persistence warning
+- Stripe payment prep (groundwork included)
 
-- exact click-by-click instructions (where to click in Vercel + Render)
-- copy/paste environment variables
-- exact build/start commands
-- CORS update steps after getting your real production URLs
-- a live-site test checklist
+### For Quick Reference
+Use: [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- Command checklists
+- Environment variable table
+- Git commands
+- Stripe timeline
+
+### For Stripe Payment Implementation
+Follow: [STRIPE_INTEGRATION.md](STRIPE_INTEGRATION.md)
+- 6-phase integration plan
+- Code templates for backend endpoints
+- Testing checklist
+- Common issues & fixes
+- Migration from test to live keys
 
 ## 🏗️ Project Structure
 

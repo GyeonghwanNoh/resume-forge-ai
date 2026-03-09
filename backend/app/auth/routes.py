@@ -27,7 +27,9 @@ async def signup(user_data: UserCreate):
             id=user["id"],
             email=user["email"],
             created_at=user["created_at"],
-            is_active=user["is_active"]
+            is_active=user["is_active"],
+            plan=user.get("plan", "free"),
+            billing_status=user.get("billing_status")
         )
     )
 
@@ -51,7 +53,9 @@ async def login(credentials: UserLogin):
             id=user["id"],
             email=user["email"],
             created_at=user["created_at"],
-            is_active=user["is_active"]
+            is_active=user["is_active"],
+            plan=user.get("plan", "free"),
+            billing_status=user.get("billing_status")
         )
     )
 
@@ -76,5 +80,7 @@ async def get_current_user(token: str = None):
         id=user["id"],
         email=user["email"],
         created_at=user["created_at"],
-        is_active=user["is_active"]
+        is_active=user["is_active"],
+        plan=user.get("plan", "free"),
+        billing_status=user.get("billing_status")
     )

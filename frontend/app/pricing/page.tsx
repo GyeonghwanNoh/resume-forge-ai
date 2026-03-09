@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Section from '@/components/ui/Section';
 import PricingCard from '@/components/ui/PricingCard';
+import { useAuth } from '@/lib/auth';
 
 const faqs = [
   {
@@ -22,6 +24,32 @@ const faqs = [
 ];
 
 export default function PricingPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      router.push('/signup');
+      return;
+    }
+
+    // TODO: Connect to Stripe Checkout
+    // Once Stripe is set up:
+    // 1. Call your backend /api/billing/checkout endpoint
+    // 2. Receive stripe_session_id
+    // 3. Redirect to Stripe Checkout: window.location.href = checkoutUrl
+    
+    setLoading(true);
+    try {
+      // Placeholder for future Stripe integration
+      console.log('Upgrade to Pro clicked - Stripe integration coming soon');
+      alert('Pro upgrade coming soon! Contact support for early access.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar />
@@ -60,8 +88,9 @@ export default function PricingPage() {
             name="Pro"
             subtitle="For active applicants"
             price="$19"
-            ctaLabel="Upgrade to Pro"
-            ctaHref="/signup"
+            ctaLabel={loading ? 'Processing...' : (user ? 'Upgrade to Pro' : 'Sign Up for Pro')}
+            onClick={handleUpgrade}
+            disabled={loading}
             features={[
               'Unlimited resume analyses',
               'Unlimited job matching',
